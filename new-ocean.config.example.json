@@ -1,0 +1,7 @@
+{
+  "vaultPath": "C:/path/to/your/obsidian/vault",
+  "bookmarks": [
+    { "id": "github", "label": "GitHub", "url": "https://github.com", "category": "Build" },
+    { "id": "docs", "label": "Tauri Docs", "url": "https://tauri.app", "category": "Build" }
+  ]
+}
