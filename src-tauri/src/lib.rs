@@ -127,6 +127,16 @@ fn read_note(vault_path: String, rel_path: String) -> Result<String, String> {
     fs::read_to_string(full).map_err(|e| e.to_string())
 }
 
+#[tauri::command]
+fn write_note(vault_path: String, rel_path: String, content: String) -> Result<(), String> {
+    // Only existing notes are writable; resolve_in_vault fails on paths that don't exist.
+    let full = resolve_in_vault(&vault_path, &rel_path)?;
+    if full.extension().and_then(|e| e.to_str()) != Some("md") {
+        return Err("only markdown notes can be written".into());
+    }
+    fs::write(full, content).map_err(|e| e.to_string())
+}
+
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct SearchHit {
@@ -275,6 +285,7 @@ pub fn run() {
             load_config,
             list_vault_tree,
             read_note,
+            write_note,
             search_vault,
             show_bookmark,
             hide_bookmark,
