@@ -19,11 +19,21 @@ Part of the [New Ocean](https://theoegginton.substack.com) build-in-public serie
 3. Copy `new-ocean.config.example.json` to `new-ocean.config.json` and set your vault path and bookmarks. This file is untracked; personal config never enters the repo.
 4. `npm run tauri dev`
 
+For search, [qmd](https://github.com/tobi/qmd) must be installed and on your PATH with your vault indexed as a collection.
+
+To run it as a desktop app rather than in dev mode: `npm run tauri build -- --no-bundle`, then create a shortcut to `src-tauri/target/release/new-ocean-os.exe` with "Start in" set to the repo root (config discovery walks up from the working directory).
+
+## Keyboard
+
+- `Ctrl+K` global vault search
+- `Ctrl+E` toggle edit / preview on the open note
+- `Ctrl+S` save while editing
+
 ## Roadmap
 
 - [x] **M0, Shell:** sidebar with vault tree, tabbed main pane, native web bookmarks
-- [ ] **M1, Editor:** TipTap rich editing with strict markdown round-trip, wikilink navigation
-- [ ] **M2, Search:** global keyword + semantic search over the vault
+- [ ] **M1, Editor:** TipTap rich editing with strict markdown round-trip, wikilink navigation (raw markdown edit + save shipped as a stepping stone)
+- [x] **M2, Search:** global keyword search over the vault via qmd (semantic layer still to come)
 - [ ] **M3, Surfaces:** briefing dashboard and workspace views
 - [ ] **M4, Finance:** business units, ledger, invoice generation (SQLite, outside the vault)
 - [ ] **M5, Agent panel:** embedded agent surface
@@ -32,4 +42,5 @@ Part of the [New Ocean](https://theoegginton.substack.com) build-in-public serie
 
 - No secrets in the repo or the vault; credentials live in local untracked config only.
 - Bookmark webviews are isolated: no Tauri IPC capability, no filesystem bridge.
-- Note reads are locked to the configured vault root (canonicalised path checks).
+- Note reads and writes are locked to the configured vault root (canonicalised path checks); writes touch existing `.md` files only.
+- Search shells out to the local qmd index; nothing leaves the machine.
