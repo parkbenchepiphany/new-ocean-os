@@ -7,9 +7,10 @@ interface Props {
   activePath?: string;
   onOpenNote: (path: string, name: string) => void;
   onOpenBookmark: (bookmark: Bookmark) => void;
+  onOpenHome: () => void;
 }
 
-export default function Sidebar({ bookmarks, tree, activePath, onOpenNote, onOpenBookmark }: Props) {
+export default function Sidebar({ bookmarks, tree, activePath, onOpenNote, onOpenBookmark, onOpenHome }: Props) {
   const categories = new Map<string, Bookmark[]>();
   for (const bm of bookmarks) {
     const cat = bm.category ?? "Bookmarks";
@@ -19,7 +20,7 @@ export default function Sidebar({ bookmarks, tree, activePath, onOpenNote, onOpe
 
   return (
     <aside className="sidebar">
-      <div className="sidebar-brand">
+      <div className="sidebar-brand clickable" onClick={onOpenHome} title="Home">
         <span className="brand-mark">◍</span>
         <span className="brand-name">New Ocean OS</span>
       </div>

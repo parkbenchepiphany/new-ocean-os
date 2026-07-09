@@ -19,9 +19,25 @@ export default function SearchPalette({ onOpenResult, onClose }: Props) {
   const [hits, setHits] = useState<SearchHit[]>([]);
   const [selected, setSelected] = useState(0);
   const [searching, setSearching] = useState(false);
+  const [deepSearching, setDeepSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const latestQuery = useRef("");
+
+  function deepSearch() {
+    const q = query.trim();
+    if (!q || deepSearching) return;
+    setDeepSearching(true);
+    setError(null);
+    invoke<SearchHit[]>("search_vault", { query: q, semantic: true })
+      .then((results) => {
+        if (latestQuery.current !== query) return;
+        setHits(results);
+        setSelected(0);
+      })
+      .catch((e) => setError(String(e)))
+      .finally(() => setDeepSearching(false));
+  }
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -64,6 +80,9 @@ export default function SearchPalette({ onOpenResult, onClose }: Props) {
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
       setSelected((s) => Math.max(s - 1, 0));
+    } else if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      deepSearch();
     } else if (e.key === "Enter" && hits[selected]) {
       onOpenResult(hits[selected]);
     }
@@ -81,8 +100,11 @@ export default function SearchPalette({ onOpenResult, onClose }: Props) {
           onKeyDown={onKeyDown}
         />
         {error && <div className="palette-status palette-error">{error}</div>}
-        {!error && searching && <div className="palette-status">Searching…</div>}
-        {!error && !searching && query.trim() && hits.length === 0 && (
+        {!error && deepSearching && (
+          <div className="palette-status">Semantic search… (this takes ~20s while the model loads)</div>
+        )}
+        {!error && !deepSearching && searching && <div className="palette-status">Searching…</div>}
+        {!error && !searching && !deepSearching && query.trim() && hits.length === 0 && (
           <div className="palette-status">No results</div>
         )}
         <div className="palette-results">
@@ -106,7 +128,9 @@ export default function SearchPalette({ onOpenResult, onClose }: Props) {
             </div>
           ))}
         </div>
-        <div className="palette-footer">↑↓ navigate · Enter open · Esc close</div>
+        <div className="palette-footer">
+          ↑↓ navigate · Enter open · Ctrl+Enter semantic search · Esc close
+        </div>
       </div>
     </div>
   );

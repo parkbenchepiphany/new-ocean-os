@@ -3,6 +3,7 @@ import { invoke } from "@tauri-apps/api/core";
 import type { Bookmark, Config, SearchHit, Tab, TreeNode } from "./types";
 import Sidebar from "./components/Sidebar";
 import NoteView from "./components/NoteView";
+import HomeView from "./components/HomeView";
 import WebPane from "./components/WebPane";
 import SearchPalette, { hitBasename } from "./components/SearchPalette";
 import "./App.css";
@@ -42,6 +43,10 @@ export default function App() {
     invoke<Config>("load_config")
       .then((cfg) => {
         setConfig(cfg);
+        setTabs((prev) =>
+          prev.some((t) => t.id === "home") ? prev : [{ id: "home", kind: "home", title: "Home" }, ...prev]
+        );
+        setActiveTabId((id) => id ?? "home");
         return invoke<TreeNode[]>("list_vault_tree", { vaultPath: cfg.vaultPath });
       })
       .then(setTree)
@@ -62,6 +67,10 @@ export default function App() {
 
   function openBookmark(bm: Bookmark) {
     activate({ id: `bm:${bm.id}`, kind: "bookmark", title: bm.label, url: bm.url });
+  }
+
+  function openHome() {
+    activate({ id: "home", kind: "home", title: "Home" });
   }
 
   function openWikilink(target: string) {
@@ -107,6 +116,7 @@ export default function App() {
         activePath={activeTab?.kind === "note" ? activeTab.path : undefined}
         onOpenNote={openNote}
         onOpenBookmark={openBookmark}
+        onOpenHome={openHome}
       />
       <main className="main">
         <div className="tab-bar">
@@ -137,6 +147,9 @@ export default function App() {
               <h1>New Ocean OS</h1>
               <p>Open a note from the vault or a pinned page from the sidebar.</p>
             </div>
+          )}
+          {activeTab?.kind === "home" && config && (
+            <HomeView config={config} onOpenNote={openNote} />
           )}
           {activeTab?.kind === "note" && config && (
             <NoteView

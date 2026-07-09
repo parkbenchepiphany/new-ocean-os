@@ -3,5 +3,11 @@
   "bookmarks": [
     { "id": "github", "label": "GitHub", "url": "https://github.com", "category": "Build" },
     { "id": "docs", "label": "Tauri Docs", "url": "https://tauri.app", "category": "Build" }
-  ]
+  ],
+  "home": {
+    "pipelineNote": "Projects/My Project Hub.md",
+    "pipelineHeading": "Pipeline",
+    "activityDirs": ["Inbox", "Daily Notes"],
+    "activityLimit": 14
+  }
 }

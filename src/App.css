@@ -566,3 +566,144 @@ body {
   font-size: 13px;
   line-height: 1.6;
 }
+
+/* ---------- Home dashboard ---------- */
+
+.clickable {
+  cursor: pointer;
+}
+
+.home {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 32px 40px 80px;
+}
+
+.home-header {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.home-header h1 {
+  font-size: 26px;
+}
+
+.home-date {
+  color: var(--text-dim);
+  font-size: 14px;
+}
+
+.home-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 16px;
+}
+
+.home-card {
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 18px;
+  min-width: 0;
+}
+
+.home-card-wide {
+  grid-column: 1 / -1;
+}
+
+.home-card-title {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.home-card-title h2 {
+  font-size: 15px;
+}
+
+.home-card-title.clickable:hover h2 {
+  color: var(--accent);
+}
+
+.home-card-sub {
+  color: var(--text-dim);
+  font-size: 12px;
+}
+
+.home-card-empty {
+  color: var(--text-dim);
+  font-size: 13px;
+}
+
+.home-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.home-table th {
+  text-align: left;
+  color: var(--text-dim);
+  font-weight: 500;
+  font-size: 12px;
+  padding: 4px 10px 6px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.home-table td {
+  padding: 7px 10px 7px 0;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+.home-table tr:last-child td {
+  border-bottom: none;
+}
+
+.home-feed {
+  list-style: none;
+}
+
+.home-feed li {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  font-size: 13px;
+  min-width: 0;
+}
+
+.home-feed li:last-child {
+  border-bottom: none;
+}
+
+.home-feed li:hover .feed-name {
+  color: var(--accent);
+}
+
+.feed-dir {
+  color: var(--accent);
+  font-size: 11px;
+  background: var(--accent-soft);
+  border-radius: 4px;
+  padding: 1px 6px;
+  white-space: nowrap;
+}
+
+.feed-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.feed-time {
+  color: var(--text-dim);
+  font-size: 12px;
+  white-space: nowrap;
+}

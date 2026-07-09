@@ -5,9 +5,24 @@ export interface Bookmark {
   category?: string;
 }
 
+export interface HomeConfig {
+  pipelineNote?: string;
+  pipelineHeading?: string;
+  activityDirs?: string[];
+  activityLimit?: number;
+}
+
 export interface Config {
   vaultPath: string;
   bookmarks: Bookmark[];
+  home?: HomeConfig;
+}
+
+export interface RecentFile {
+  name: string;
+  path: string;
+  dir: string;
+  modifiedMs: number;
 }
 
 export interface TreeNode {
@@ -27,5 +42,6 @@ export interface SearchHit {
 }
 
 export type Tab =
+  | { id: string; kind: "home"; title: string }
   | { id: string; kind: "note"; title: string; path: string }
   | { id: string; kind: "bookmark"; title: string; url: string };

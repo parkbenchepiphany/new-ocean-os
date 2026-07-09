@@ -137,6 +137,70 @@ fn write_note(vault_path: String, rel_path: String, content: String) -> Result<(
     fs::write(full, content).map_err(|e| e.to_string())
 }
 
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct RecentFile {
+    name: String,
+    path: String,
+    dir: String,
+    modified_ms: u64,
+}
+
+#[tauri::command]
+fn recent_files(vault_path: String, dirs: Vec<String>, limit: usize) -> Result<Vec<RecentFile>, String> {
+    let root = PathBuf::from(&vault_path)
+        .canonicalize()
+        .map_err(|e| e.to_string())?;
+    let mut files: Vec<RecentFile> = Vec::new();
+    for dir in &dirs {
+        let Ok(full_dir) = root.join(dir).canonicalize() else {
+            continue;
+        };
+        if !full_dir.starts_with(&root) || !full_dir.is_dir() {
+            continue;
+        }
+        let Ok(entries) = fs::read_dir(&full_dir) else {
+            continue;
+        };
+        for entry in entries.flatten() {
+            let path = entry.path();
+            if path.extension().and_then(|e| e.to_str()) != Some("md") {
+                continue;
+            }
+            let name = entry.file_name().to_string_lossy().to_string();
+            if name.starts_with('.') {
+                continue;
+            }
+            let modified_ms = entry
+                .metadata()
+                .and_then(|m| m.modified())
+                .ok()
+                .and_then(|t| t.duration_since(std::time::UNIX_EPOCH).ok())
+                .map(|d| d.as_millis() as u64)
+                .unwrap_or(0);
+            let rel = path
+                .strip_prefix(&root)
+                .unwrap_or(&path)
+                .to_string_lossy()
+                .replace('\\', "/");
+            let dir_label = dir
+                .rsplit('/')
+                .next()
+                .unwrap_or(dir)
+                .to_string();
+            files.push(RecentFile {
+                name: name.trim_end_matches(".md").to_string(),
+                path: rel,
+                dir: dir_label,
+                modified_ms,
+            });
+        }
+    }
+    files.sort_by(|a, b| b.modified_ms.cmp(&a.modified_ms));
+    files.truncate(limit.min(100));
+    Ok(files)
+}
+
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct SearchHit {
@@ -152,14 +216,16 @@ struct SearchHit {
 }
 
 #[tauri::command]
-async fn search_vault(query: String) -> Result<Vec<SearchHit>, String> {
+async fn search_vault(query: String, semantic: Option<bool>) -> Result<Vec<SearchHit>, String> {
     let trimmed = query.trim().to_string();
     if trimmed.is_empty() {
         return Ok(Vec::new());
     }
+    // vsearch cold-loads an embedding model (~15-30s); the UI treats it as an explicit deep search.
+    let subcommand = if semantic.unwrap_or(false) { "vsearch" } else { "search" };
     let output = tauri::async_runtime::spawn_blocking(move || {
         let mut cmd = std::process::Command::new("cmd");
-        cmd.args(["/C", "qmd", "search", &trimmed, "--json"]);
+        cmd.args(["/C", "qmd", subcommand, &trimmed, "--json"]);
         #[cfg(windows)]
         {
             use std::os::windows::process::CommandExt;
@@ -287,6 +353,7 @@ pub fn run() {
             read_note,
             write_note,
             search_vault,
+            recent_files,
             show_bookmark,
             hide_bookmark,
             close_bookmark,
