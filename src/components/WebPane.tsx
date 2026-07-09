@@ -4,14 +4,20 @@ import { invoke } from "@tauri-apps/api/core";
 interface Props {
   id: string;
   url: string;
+  suspended?: boolean;
 }
 
-export default function WebPane({ id, url }: Props) {
+export default function WebPane({ id, url, suspended = false }: Props) {
   const paneRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const pane = paneRef.current;
     if (!pane) return;
+
+    if (suspended) {
+      invoke("hide_bookmark", { id }).catch(console.error);
+      return;
+    }
 
     const rect = pane.getBoundingClientRect();
     invoke("show_bookmark", {
@@ -39,7 +45,7 @@ export default function WebPane({ id, url }: Props) {
       observer.disconnect();
       invoke("hide_bookmark", { id }).catch(console.error);
     };
-  }, [id, url]);
+  }, [id, url, suspended]);
 
   return (
     <div ref={paneRef} className="web-pane">

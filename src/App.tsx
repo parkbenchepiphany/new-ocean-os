@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import type { Bookmark, Config, Tab, TreeNode } from "./types";
+import type { Bookmark, Config, SearchHit, Tab, TreeNode } from "./types";
 import Sidebar from "./components/Sidebar";
 import NoteView from "./components/NoteView";
 import WebPane from "./components/WebPane";
+import SearchPalette, { hitBasename } from "./components/SearchPalette";
 import "./App.css";
 
 function indexNotes(nodes: TreeNode[], map: Map<string, { path: string; name: string }>) {
@@ -24,6 +25,18 @@ export default function App() {
   const [tabs, setTabs] = useState<Tab[]>([]);
   const [activeTabId, setActiveTabId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [searchOpen, setSearchOpen] = useState(false);
+
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setSearchOpen((open) => !open);
+      }
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
 
   useEffect(() => {
     invoke<Config>("load_config")
@@ -54,6 +67,14 @@ export default function App() {
   function openWikilink(target: string) {
     const hit = noteIndex.get(target.toLowerCase());
     if (hit) openNote(hit.path, hit.name);
+  }
+
+  function openSearchResult(hit: SearchHit) {
+    const note = noteIndex.get(hitBasename(hit).toLowerCase());
+    if (note) {
+      openNote(note.path, note.name);
+      setSearchOpen(false);
+    }
   }
 
   function closeTab(tab: Tab) {
@@ -126,10 +147,18 @@ export default function App() {
             />
           )}
           {activeTab?.kind === "bookmark" && (
-            <WebPane key={activeTab.id} id={activeTab.id.slice(3)} url={activeTab.url} />
+            <WebPane
+              key={activeTab.id}
+              id={activeTab.id.slice(3)}
+              url={activeTab.url}
+              suspended={searchOpen}
+            />
           )}
         </div>
       </main>
+      {searchOpen && (
+        <SearchPalette onOpenResult={openSearchResult} onClose={() => setSearchOpen(false)} />
+      )}
     </div>
   );
 }

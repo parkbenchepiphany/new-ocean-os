@@ -127,6 +127,55 @@ fn read_note(vault_path: String, rel_path: String) -> Result<String, String> {
     fs::read_to_string(full).map_err(|e| e.to_string())
 }
 
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct SearchHit {
+    docid: String,
+    score: f64,
+    file: String,
+    #[serde(default)]
+    line: Option<u32>,
+    #[serde(default)]
+    title: Option<String>,
+    #[serde(default)]
+    snippet: Option<String>,
+}
+
+#[tauri::command]
+async fn search_vault(query: String) -> Result<Vec<SearchHit>, String> {
+    let trimmed = query.trim().to_string();
+    if trimmed.is_empty() {
+        return Ok(Vec::new());
+    }
+    let output = tauri::async_runtime::spawn_blocking(move || {
+        let mut cmd = std::process::Command::new("cmd");
+        cmd.args(["/C", "qmd", "search", &trimmed, "--json"]);
+        #[cfg(windows)]
+        {
+            use std::os::windows::process::CommandExt;
+            cmd.creation_flags(0x0800_0000); // CREATE_NO_WINDOW
+        }
+        cmd.output()
+    })
+    .await
+    .map_err(|e| e.to_string())?
+    .map_err(|e| format!("could not run qmd: {e}"))?;
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    // qmd can exit nonzero while still printing valid results; trust parseable stdout.
+    match serde_json::from_str::<Vec<SearchHit>>(stdout.trim()) {
+        Ok(mut hits) => {
+            hits.truncate(20);
+            Ok(hits)
+        }
+        Err(_) if !output.status.success() => Err(format!(
+            "qmd search failed: {}",
+            String::from_utf8_lossy(&output.stderr)
+        )),
+        Err(e) => Err(format!("unexpected qmd output: {e}")),
+    }
+}
+
 fn bookmark_label(id: &str) -> String {
     format!("bm-{id}")
 }
@@ -226,6 +275,7 @@ pub fn run() {
             load_config,
             list_vault_tree,
             read_note,
+            search_vault,
             show_bookmark,
             hide_bookmark,
             close_bookmark,
