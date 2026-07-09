@@ -20,6 +20,9 @@ struct Config {
     vault_path: String,
     #[serde(default)]
     bookmarks: Vec<Bookmark>,
+    // passed through untyped; the frontend owns the home dashboard config shape
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    home: Option<serde_json::Value>,
 }
 
 #[derive(Serialize)]
