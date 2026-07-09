@@ -25,16 +25,24 @@ To run it as a desktop app rather than in dev mode: `npm run tauri build -- --no
 
 ## Keyboard
 
-- `Ctrl+K` global vault search
+- `Ctrl+K` global vault search, `Ctrl+Enter` inside it for semantic deep search
 - `Ctrl+E` toggle edit / preview on the open note
 - `Ctrl+S` save while editing
+
+## Home dashboard
+
+The app boots onto a Today screen driven by the optional `home` config block: a pipeline card parsed live from any hub note's markdown table, and an activity feed of the newest files across configured folders (agent logs, summaries, inbox).
+
+## Editing and the round-trip gate
+
+Rich editing (TipTap) only activates on a note if parsing and immediately re-serializing it reproduces the file exactly; otherwise the raw markdown editor opens instead. Nothing the rich editor cannot represent losslessly can ever be saved through it. Wikilinks (`[[Target]]`, `[[Target|Alias]]`) round-trip via a custom node. Tables and unusual syntax currently gate to raw; widening the gate is active work.
 
 ## Roadmap
 
 - [x] **M0, Shell:** sidebar with vault tree, tabbed main pane, native web bookmarks
-- [ ] **M1, Editor:** TipTap rich editing with strict markdown round-trip, wikilink navigation (raw markdown edit + save shipped as a stepping stone)
-- [x] **M2, Search:** global keyword search over the vault via qmd (semantic layer still to come)
-- [ ] **M3, Surfaces:** briefing dashboard and workspace views
+- [~] **M1, Editor:** TipTap rich editing behind a strict round-trip gate (shipped); custom escape rules to widen the gate to most real notes (next)
+- [x] **M2, Search:** global keyword search plus explicit semantic deep search via qmd
+- [~] **M3, Surfaces:** Home/Today dashboard shipped; briefing cards and workspace views next
 - [ ] **M4, Finance:** business units, ledger, invoice generation (SQLite, outside the vault)
 - [ ] **M5, Agent panel:** embedded agent surface
 
