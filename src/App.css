@@ -707,3 +707,33 @@ body {
   font-size: 12px;
   white-space: nowrap;
 }
+
+/* ---------- Rich editor ---------- */
+
+.rich-editor-wrap {
+  flex: 1;
+  overflow-y: auto;
+  width: 100%;
+}
+
+.rich-editor-wrap .note-properties {
+  margin: 24px 40px 0;
+}
+
+.rich-editor {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 24px 40px 80px;
+}
+
+.rich-editor-content {
+  outline: none;
+  min-height: 300px;
+}
+
+.rich-editor-content .wikilink {
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-radius: 4px;
+  padding: 0 3px;
+}
