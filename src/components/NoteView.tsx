@@ -3,7 +3,8 @@ import { invoke } from "@tauri-apps/api/core";
 import { marked } from "marked";
 import DOMPurify from "dompurify";
 import type { Editor } from "@tiptap/react";
-import RichEditor, { getMarkdown, normalizeMd } from "./RichEditor";
+import RichEditor, { getMarkdown, normalizeMd, safeMarkdown } from "./RichEditor";
+import { splitFrontmatter } from "../editor/frontmatter";
 
 interface Props {
   vaultPath: string;
@@ -12,12 +13,6 @@ interface Props {
 }
 
 type Mode = "preview" | "rich" | "raw";
-
-function splitFrontmatter(md: string): { body: string; frontmatter: string | null; fmBlock: string } {
-  const match = md.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?/);
-  if (!match) return { body: md, frontmatter: null, fmBlock: "" };
-  return { body: md.slice(match[0].length), frontmatter: match[1], fmBlock: match[0] };
-}
 
 function wikilinksToAnchors(md: string): string {
   return md.replace(/\[\[([^\]|#]+)(?:#[^\]|]*)?(?:\|([^\]]+))?\]\]/g, (_m, target, alias) => {
@@ -84,8 +79,18 @@ export default function NoteView({ vaultPath, relPath, onOpenWikilink }: Props) 
     if (mode === "raw") {
       persist(draft);
     } else if (mode === "rich" && editorRef.current) {
-      const body = getMarkdown(editorRef.current);
-      persist(parts.fmBlock + body.trimEnd() + "\n");
+      const { md, stable } = safeMarkdown(editorRef.current);
+      if (!stable) {
+        // The edit produced markdown that would reparse differently. Never
+        // write ambiguous bytes to the vault: hand the output to the raw
+        // editor for review instead.
+        setDraft(parts.fmBlock + md.trimEnd() + "\n");
+        editorRef.current = null;
+        setGateNotice("Not saved: the edit produced ambiguous markdown. Review in the raw editor and save from there.");
+        setMode("raw");
+        return;
+      }
+      persist(parts.fmBlock + md.trimEnd() + "\n");
     }
   }
 

@@ -1,13 +1,19 @@
 // @vitest-environment jsdom
 import { describe, expect, it } from "vitest";
 import { Editor } from "@tiptap/core";
-import { editorExtensions, getMarkdown, normalizeMd } from "../components/RichEditor";
+import {
+  editorExtensions,
+  editorParseOptions,
+  getMarkdown,
+  normalizeMd,
+} from "../components/RichEditor";
 
 function roundTrip(body: string): { ok: boolean; out: string } {
   const editor = new Editor({
     element: document.createElement("div"),
     extensions: editorExtensions,
     content: body,
+    parseOptions: editorParseOptions,
   });
   const out = getMarkdown(editor);
   editor.destroy();
@@ -68,9 +74,34 @@ describe("rich editor markdown round-trip gate", () => {
     expect(r.ok, `serialized:\n${r.out}`).toBe(true);
   });
 
-  it("gates to raw on 4-space nested lists (serializer renormalizes indentation)", () => {
+  it("passes 4-space nested lists (source indent preserved)", () => {
     const body = ["- Parent", "    - Child"].join("\n");
-    expect(roundTrip(body).ok).toBe(false);
+    const r = roundTrip(body);
+    expect(r.ok, `serialized:\n${r.out}`).toBe(true);
+  });
+
+  it("passes tight heading-list adjacency and indented top-level lists", () => {
+    const body = [
+      "## Calendar invitees",
+      "- greg@chillhop.com (internal)",
+      "",
+      "### Topics",
+      "  - [linked item](https://example.com)",
+      "      - deeper item",
+    ].join("\n");
+    const r = roundTrip(body);
+    expect(r.ok, `serialized:\n${r.out}`).toBe(true);
+  });
+
+  it("passes soft-wrapped paragraphs and underscore emphasis", () => {
+    const body = [
+      "**Bold lead**",
+      "Continuation on the next line with _underscore em_ kept.",
+      "",
+      "Text with literal chars: 5 < 10, ~approx, a_b_c.",
+    ].join("\n");
+    const r = roundTrip(body);
+    expect(r.ok, `serialized:\n${r.out}`).toBe(true);
   });
 
   it("gate result is deterministic for headings with trailing spaces", () => {
