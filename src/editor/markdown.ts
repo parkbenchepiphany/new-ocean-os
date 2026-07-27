@@ -268,8 +268,8 @@ export const VaultBold = Bold.extend({
 // Autolinks
 //
 // prosemirror-markdown writes <url> for links whose text equals their href,
-// but a mailto autolink like <creative@chillhop.com> has href
-// "mailto:creative@chillhop.com" and text "creative@chillhop.com", so it fell
+// but a mailto autolink like <hello@example.com> has href
+// "mailto:hello@example.com" and text "hello@example.com", so it fell
 // through to [text](mailto:...). Treat that pair as plain too.
 // ---------------------------------------------------------------------------
 function isPlainLink(mark: any, parent: any, index: number): boolean {

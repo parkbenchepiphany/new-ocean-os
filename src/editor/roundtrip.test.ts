@@ -83,7 +83,7 @@ describe("rich editor markdown round-trip gate", () => {
   it("passes tight heading-list adjacency and indented top-level lists", () => {
     const body = [
       "## Calendar invitees",
-      "- greg@chillhop.com (internal)",
+      "- alex@example.com (internal)",
       "",
       "### Topics",
       "  - [linked item](https://example.com)",

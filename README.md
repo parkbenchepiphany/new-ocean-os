@@ -35,12 +35,14 @@ The app boots onto a Today screen driven by the optional `home` config block: a 
 
 ## Editing and the round-trip gate
 
-Rich editing (TipTap) only activates on a note if parsing and immediately re-serializing it reproduces the file exactly; otherwise the raw markdown editor opens instead. Nothing the rich editor cannot represent losslessly can ever be saved through it. Wikilinks (`[[Target]]`, `[[Target|Alias]]`) round-trip via a custom node. Tables and unusual syntax currently gate to raw; widening the gate is active work.
+Rich editing (TipTap) only activates on a note if parsing and immediately re-serializing it reproduces the file exactly; otherwise the raw markdown editor opens instead. Nothing the rich editor cannot represent losslessly can ever be saved through it. Wikilinks (`[[Target]]`, `[[Target|Alias]]`) round-trip via a custom node. A save-time reparse check (`safeMarkdown`) diverts any ambiguous edit to the raw editor rather than risking a byte it can't reproduce.
+
+Getting real-world notes through that gate meant fixing six ways stock prosemirror-markdown silently mangles bytes: prose over-escaping, tight-list flattening, list-indent rewriting, emphasis delimiter swaps (`_` vs `*`), soft-break loss, and mailto autolink expansion. A permanent test harness runs the gate against 40 real vault notes on every `npm test` (skipped without local config); 31/40 pass, and the remaining gates are by design (tables, encoding-damaged logs, irregular lazy indents).
 
 ## Roadmap
 
 - [x] **M0, Shell:** sidebar with vault tree, tabbed main pane, native web bookmarks
-- [~] **M1, Editor:** TipTap rich editing behind a strict round-trip gate (shipped); custom escape rules to widen the gate to most real notes (next)
+- [~] **M1, Editor:** TipTap rich editing behind a strict round-trip gate (shipped); custom serializer escape rules opened the gate from 0/40 to 31/40 real vault notes (78%); table support next
 - [x] **M2, Search:** global keyword search plus explicit semantic deep search via qmd
 - [~] **M3, Surfaces:** Home/Today dashboard shipped; briefing cards and workspace views next
 - [ ] **M4, Finance:** business units, ledger, invoice generation (SQLite, outside the vault)
