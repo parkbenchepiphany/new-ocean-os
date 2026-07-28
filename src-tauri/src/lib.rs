@@ -23,6 +23,9 @@ struct Config {
     // passed through untyped; the frontend owns the home dashboard config shape
     #[serde(default, skip_serializing_if = "Option::is_none")]
     home: Option<serde_json::Value>,
+    // passed through untyped; the frontend owns the apply engine config shape
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    apply_engine: Option<serde_json::Value>,
 }
 
 #[derive(Serialize)]
@@ -255,6 +258,40 @@ async fn search_vault(query: String, semantic: Option<bool>) -> Result<Vec<Searc
     }
 }
 
+#[tauri::command]
+async fn run_claude(prompt: String) -> Result<String, String> {
+    let output = tauri::async_runtime::spawn_blocking(move || {
+        use std::io::Write;
+        use std::process::Stdio;
+        let mut cmd = std::process::Command::new("cmd");
+        // Prompt travels over stdin: job descriptions routinely exceed the
+        // Windows command-line length limit.
+        cmd.args(["/C", "claude", "-p"])
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped());
+        #[cfg(windows)]
+        {
+            use std::os::windows::process::CommandExt;
+            cmd.creation_flags(0x0800_0000); // CREATE_NO_WINDOW
+        }
+        let mut child = cmd.spawn()?;
+        if let Some(mut stdin) = child.stdin.take() {
+            stdin.write_all(prompt.as_bytes())?;
+        }
+        child.wait_with_output()
+    })
+    .await
+    .map_err(|e| e.to_string())?
+    .map_err(|e| format!("could not run claude: {e}"))?;
+
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        return Err(format!("claude exited with an error: {}", stderr.trim()));
+    }
+    Ok(String::from_utf8_lossy(&output.stdout).trim().to_string())
+}
+
 fn bookmark_label(id: &str) -> String {
     format!("bm-{id}")
 }
@@ -357,6 +394,7 @@ pub fn run() {
             write_note,
             search_vault,
             recent_files,
+            run_claude,
             show_bookmark,
             hide_bookmark,
             close_bookmark,

@@ -708,6 +708,134 @@ body {
   white-space: nowrap;
 }
 
+/* ---------- Apply Engine (jobs view) ---------- */
+
+.jobs {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 32px 40px 80px;
+}
+
+.jobs .home-card {
+  margin-bottom: 16px;
+}
+
+.engine-dot {
+  background: #34d399;
+}
+
+.jobs-jd {
+  width: 100%;
+  min-height: 220px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  color: var(--text);
+  font-family: Consolas, "Cascadia Code", monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  resize: vertical;
+  outline: none;
+}
+
+.jobs-jd:focus {
+  border-color: var(--accent);
+}
+
+.jobs-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.jobs-score-btn {
+  font-size: 13px;
+  padding: 6px 14px;
+}
+
+.verdict {
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 999px;
+  padding: 2px 12px;
+  white-space: nowrap;
+}
+
+.verdict-apply {
+  color: #34d399;
+  background: rgba(52, 211, 153, 0.12);
+}
+
+.verdict-maybe {
+  color: #fbbf24;
+  background: rgba(251, 191, 36, 0.12);
+}
+
+.verdict-network-first {
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.verdict-skip {
+  color: #f87171;
+  background: rgba(248, 113, 113, 0.12);
+}
+
+.jobs-record {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 4px 16px;
+  margin-bottom: 12px;
+  font-size: 13px;
+}
+
+.jobs-record dt {
+  color: var(--text-dim);
+}
+
+.jobs-record dd {
+  overflow-wrap: anywhere;
+}
+
+.jobs-explanation {
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.jobs-list-block {
+  margin-bottom: 12px;
+}
+
+.jobs-list-block h3 {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+}
+
+.jobs-list-block ul {
+  padding-left: 1.3em;
+  line-height: 1.55;
+  font-size: 13px;
+}
+
+.jobs-raw {
+  margin-top: 10px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-family: Consolas, monospace;
+  font-size: 12px;
+  white-space: pre-wrap;
+  max-height: 240px;
+  overflow-y: auto;
+  color: var(--text-dim);
+}
+
 /* ---------- Rich editor ---------- */
 
 .rich-editor-wrap {

@@ -4,6 +4,7 @@ import type { Bookmark, Config, SearchHit, Tab, TreeNode } from "./types";
 import Sidebar from "./components/Sidebar";
 import NoteView from "./components/NoteView";
 import HomeView from "./components/HomeView";
+import JobsView from "./components/JobsView";
 import WebPane from "./components/WebPane";
 import SearchPalette, { hitBasename } from "./components/SearchPalette";
 import "./App.css";
@@ -73,6 +74,10 @@ export default function App() {
     activate({ id: "home", kind: "home", title: "Home" });
   }
 
+  function openJobs() {
+    activate({ id: "jobs", kind: "jobs", title: "Apply Engine" });
+  }
+
   function openWikilink(target: string) {
     const hit = noteIndex.get(target.toLowerCase());
     if (hit) openNote(hit.path, hit.name);
@@ -117,6 +122,7 @@ export default function App() {
         onOpenNote={openNote}
         onOpenBookmark={openBookmark}
         onOpenHome={openHome}
+        onOpenJobs={openJobs}
       />
       <main className="main">
         <div className="tab-bar">
@@ -151,6 +157,7 @@ export default function App() {
           {activeTab?.kind === "home" && config && (
             <HomeView config={config} onOpenNote={openNote} />
           )}
+          {activeTab?.kind === "jobs" && config && <JobsView config={config} />}
           {activeTab?.kind === "note" && config && (
             <NoteView
               key={activeTab.id}

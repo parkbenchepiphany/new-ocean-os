@@ -8,9 +8,10 @@ interface Props {
   onOpenNote: (path: string, name: string) => void;
   onOpenBookmark: (bookmark: Bookmark) => void;
   onOpenHome: () => void;
+  onOpenJobs: () => void;
 }
 
-export default function Sidebar({ bookmarks, tree, activePath, onOpenNote, onOpenBookmark, onOpenHome }: Props) {
+export default function Sidebar({ bookmarks, tree, activePath, onOpenNote, onOpenBookmark, onOpenHome, onOpenJobs }: Props) {
   const categories = new Map<string, Bookmark[]>();
   for (const bm of bookmarks) {
     const cat = bm.category ?? "Bookmarks";
@@ -26,6 +27,14 @@ export default function Sidebar({ bookmarks, tree, activePath, onOpenNote, onOpe
       </div>
 
       <div className="sidebar-scroll">
+        <section className="sidebar-section">
+          <h3 className="section-title">Engine</h3>
+          <button className="tree-row" onClick={onOpenJobs}>
+            <span className="bookmark-dot engine-dot" />
+            <span className="tree-label">Apply Engine</span>
+          </button>
+        </section>
+
         {[...categories.entries()].map(([cat, items]) => (
           <section key={cat} className="sidebar-section">
             <h3 className="section-title">{cat}</h3>

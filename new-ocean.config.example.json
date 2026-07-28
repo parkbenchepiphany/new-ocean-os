@@ -9,5 +9,8 @@
     "pipelineHeading": "Pipeline",
     "activityDirs": ["Inbox", "Daily Notes"],
     "activityLimit": 14
+  },
+  "applyEngine": {
+    "targetingFile": "Career/targeting.yaml"
   }
 }

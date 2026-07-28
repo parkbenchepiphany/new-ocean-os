@@ -12,10 +12,15 @@ export interface HomeConfig {
   activityLimit?: number;
 }
 
+export interface ApplyEngineConfig {
+  targetingFile?: string;
+}
+
 export interface Config {
   vaultPath: string;
   bookmarks: Bookmark[];
   home?: HomeConfig;
+  applyEngine?: ApplyEngineConfig;
 }
 
 export interface RecentFile {
@@ -43,5 +48,6 @@ export interface SearchHit {
 
 export type Tab =
   | { id: string; kind: "home"; title: string }
+  | { id: string; kind: "jobs"; title: string }
   | { id: string; kind: "note"; title: string; path: string }
   | { id: string; kind: "bookmark"; title: string; url: string };
