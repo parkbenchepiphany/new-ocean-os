@@ -1,6 +1,6 @@
 # New Ocean OS
 
-A local-first desktop OS that sits on top of an Obsidian vault: rich note viewing, pinned webpages rendered natively in the main pane, and (soon) semantic search, dashboards, and finance tooling. The vault's markdown files stay canonical, so Obsidian and any agents working against the vault keep functioning untouched.
+A local-first desktop OS that sits on top of an Obsidian vault: rich note viewing and editing, pinned webpages rendered natively in the main pane, keyword and semantic search, and a home dashboard. Finance tooling is planned. The vault's markdown files stay canonical, so Obsidian and any agents working against the vault keep functioning untouched.
 
 Part of the [New Ocean](https://theoegginton.substack.com) build-in-public series.
 
